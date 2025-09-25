@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eztag - GitHub Tag Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="container">
+                <h1 class="logo">
+                    <svg class="octicon" viewBox="0 0 16 16" width="24" height="24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                    </svg>
+                    eztag
+                </h1>
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <img id="userAvatar" class="avatar" src="" alt="User avatar">
+                    <span id="userName"></span>
+                    <button id="signOutBtn" class="btn btn-sm">Sign out</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <!-- Auth Screen -->
+            <div id="authScreen" class="screen">
+                <div class="auth-container">
+                    <div class="auth-card">
+                        <div class="auth-header">
+                            <svg class="octicon large" viewBox="0 0 16 16" width="48" height="48" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                            </svg>
+                            <h2>Welcome to eztag</h2>
+                            <p>Easily manage GitHub tags for your repositories</p>
+                        </div>
+                        <button id="signInBtn" class="btn btn-primary btn-large">
+                            <svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+                            </svg>
+                            Sign in with GitHub
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repository List Screen -->
+            <div id="repoScreen" class="screen" style="display: none;">
+                <div class="container">
+                    <div class="screen-header">
+                        <h2>Select a Repository</h2>
+                        <div class="controls">
+                            <input type="text" id="repoFilter" placeholder="Filter repositories..." class="input">
+                            <select id="repoSort" class="select">
+                                <option value="name">Sort by Name</option>
+                                <option value="updated" selected>Sort by Last Updated</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="repoList" class="repo-list">
+                        <div class="loading">Loading repositories...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Repository Detail Screen -->
+            <div id="detailScreen" class="screen" style="display: none;">
+                <div class="container">
+                    <div class="screen-header">
+                        <div class="breadcrumb">
+                            <button id="backBtn" class="btn btn-link">← Back to repositories</button>
+                            <span class="separator">/</span>
+                            <span id="currentRepoName"></span>
+                        </div>
+                        <button id="openGitHubBtn" class="btn btn-outline">
+                            Open in GitHub
+                            <svg class="octicon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M10.604 1h4.146a.25.25 0 01.25.25v4.146a.25.25 0 01-.427.177L13.03 4.03 9.28 7.78a.75.75 0 01-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0110.604 1zM3.75 2A1.75 1.75 0 002 3.75v8.5c0 .966.784 1.75 1.75 1.75h8.5A1.75 1.75 0 0014 12.25v-3.5a.75.75 0 00-1.5 0v3.5a.25.25 0 01-.25.25h-8.5a.25.25 0 01-.25-.25v-8.5a.25.25 0 01.25-.25h3.5a.75.75 0 000-1.5h-3.5z"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="detail-content">
+                        <div class="section">
+                            <div class="section-header">
+                                <h3>Recent Branches</h3>
+                                <select id="branchSort" class="select">
+                                    <option value="name">Sort by Name</option>
+                                    <option value="updated" selected>Sort by Last Commit</option>
+                                </select>
+                            </div>
+                            <div id="branchList" class="branch-list">
+                                <div class="loading">Loading branches...</div>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-header">
+                                <h3>Tags</h3>
+                                <select id="tagSort" class="select">
+                                    <option value="name">Sort by Name</option>
+                                    <option value="created" selected>Sort by Created Date</option>
+                                </select>
+                            </div>
+                            <div id="tagList" class="tag-list">
+                                <div class="loading">Loading tags...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Tag Modal -->
+            <div id="createTagModal" class="modal" style="display: none;">
+                <div class="modal-overlay" id="modalOverlay"></div>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Create New Tag</h3>
+                        <button id="closeModalBtn" class="btn btn-link">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="tagName">Tag Name</label>
+                            <input type="text" id="tagName" class="input" placeholder="v1.0.0">
+                        </div>
+                        <div class="form-group">
+                            <label for="tagMessage">Tag Message (optional)</label>
+                            <textarea id="tagMessage" class="input" placeholder="Release notes..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Branch</label>
+                            <div id="selectedBranch" class="selected-branch"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="cancelTagBtn" class="btn">Cancel</button>
+                        <button id="createTagBtn" class="btn btn-primary">Create Tag</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
