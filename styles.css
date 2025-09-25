@@ -381,6 +381,65 @@ textarea.input {
   text-decoration: underline;
 }
 
+/* CI Status Indicators */
+.ci-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 900;
+  text-decoration: none;
+  margin-right: 3px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+.ci-status-success {
+  color: var(--color-success-emphasis) !important;
+  background: none !important;
+}
+
+.ci-status-success:hover {
+  color: #1a7f37 !important;
+  transform: scale(1.2);
+  text-decoration: none;
+}
+
+.ci-status-failure {
+  color: var(--color-danger-emphasis) !important;
+  background: none !important;
+}
+
+.ci-status-failure:hover {
+  color: #cf222e !important;
+  transform: scale(1.2);
+  text-decoration: none;
+}
+
+.ci-status-pending {
+  color: #fb8500 !important;
+  background: none !important;
+}
+
+.ci-status-pending:hover {
+  color: #f77f00 !important;
+  transform: scale(1.2);
+  text-decoration: none;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .branch-item, .tag-item {
   display: flex;
   justify-content: space-between;

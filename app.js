@@ -226,21 +226,71 @@ class EzTagApp {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - daysBack);
 
-      // Get commit details for up to 15 branches (to avoid too many API calls)
+      // Get commit details and CI status for up to 15 branches (to avoid too many API calls)
       const branchesWithCommits = await Promise.all(
         branches.slice(0, 15).map(async (branch) => {
           try {
             const commit = await this.githubAPI(`/repos/${repoFullName}/commits/${branch.commit.sha}`);
+
+            // Get CI status for the branch
+            let ciStatus = null;
+            try {
+              // Try check runs first (newer GitHub Actions)
+              const checkRuns = await this.githubAPI(`/repos/${repoFullName}/commits/${branch.commit.sha}/check-runs`);
+              if (checkRuns.total_count > 0) {
+                const conclusions = checkRuns.check_runs.map(run => run.conclusion).filter(c => c !== null);
+                const statuses = checkRuns.check_runs.map(run => run.status);
+
+                console.log(`Branch ${branch.name} check runs:`, checkRuns.check_runs.map(run => ({
+                  name: run.name,
+                  status: run.status,
+                  conclusion: run.conclusion
+                })));
+
+                const hasPending = statuses.some(s => s === 'in_progress' || s === 'queued');
+                const hasFailure = conclusions.some(c => c === 'failure' || c === 'cancelled' || c === 'timed_out' || c === 'action_required');
+                const hasSuccess = conclusions.some(c => c === 'success');
+
+                if (hasPending) {
+                  ciStatus = { state: 'pending', total_count: checkRuns.total_count };
+                } else if (hasFailure) {
+                  ciStatus = { state: 'failure', total_count: checkRuns.total_count };
+                } else if (hasSuccess && conclusions.length > 0) {
+                  ciStatus = { state: 'success', total_count: checkRuns.total_count };
+                }
+                console.log(`Branch ${branch.name} CI Status:`, ciStatus);
+              } else {
+                // Fallback to status API for older CI systems
+                try {
+                  const statusResponse = await this.githubAPI(`/repos/${repoFullName}/commits/${branch.commit.sha}/status`);
+                  if (statusResponse.total_count > 0) {
+                    ciStatus = {
+                      state: statusResponse.state, // success, failure, pending, error
+                      total_count: statusResponse.total_count
+                    };
+                  }
+                } catch {
+                  // No CI status available
+                  ciStatus = null;
+                }
+              }
+            } catch (statusError) {
+              console.warn(`Could not get CI status for branch ${branch.name}:`, statusError);
+              ciStatus = null;
+            }
+
             return {
               ...branch,
               lastCommit: commit.commit.committer.date,
-              lastCommitMessage: commit.commit.message
+              lastCommitMessage: commit.commit.message,
+              ciStatus
             };
           } catch {
             return {
               ...branch,
               lastCommit: null,
-              lastCommitMessage: 'Unknown'
+              lastCommitMessage: 'Unknown',
+              ciStatus: null
             };
           }
         })
@@ -476,6 +526,7 @@ class EzTagApp {
       <div class="branch-item">
         <div class="branch-info">
           <div class="branch-name">
+            ${this.renderCIStatusIndicator(branch)}
             <a href="https://github.com/${this.currentRepo.full_name}/commits/${branch.name}" target="_blank" rel="noopener noreferrer">${branch.name}</a>
           </div>
           <div class="branch-meta">
@@ -487,6 +538,44 @@ class EzTagApp {
         </button>
       </div>
     `).join('');
+  }
+
+  renderCIStatusIndicator(branch) {
+    if (!branch.ciStatus) {
+      return ''; // No CI status available
+    }
+
+    const actionsUrl = `https://github.com/${this.currentRepo.full_name}/actions?query=branch%3A${encodeURIComponent(branch.name)}`;
+
+    let statusClass = '';
+    let statusIcon = '';
+    let statusTitle = '';
+
+    console.log(`Rendering CI status for branch ${branch.name}:`, branch.ciStatus.state);
+
+    switch (branch.ciStatus.state) {
+      case 'success':
+        statusClass = 'ci-status-success';
+        statusIcon = '✅';
+        statusTitle = 'CI checks passed';
+        break;
+      case 'failure':
+      case 'error':
+        statusClass = 'ci-status-failure';
+        statusIcon = '❌';
+        statusTitle = 'CI checks failed';
+        break;
+      case 'pending':
+        statusClass = 'ci-status-pending';
+        statusIcon = '🟡';
+        statusTitle = 'CI checks running';
+        break;
+      default:
+        console.log(`Unknown CI status: ${branch.ciStatus.state}`);
+        return '';
+    }
+
+    return `<a href="${actionsUrl}" target="_blank" rel="noopener noreferrer" class="ci-status ${statusClass}" title="${statusTitle}">${statusIcon}</a>`;
   }
 
   renderTags() {
