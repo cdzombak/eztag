@@ -159,7 +159,9 @@ func serveStaticFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
-	w.Write(data)
+	if _, err := w.Write(data); err != nil {
+		log.Printf("Error writing response: %v", err)
+	}
 }
 
 func getContentType(filename string) string {
@@ -188,7 +190,9 @@ func handleConfig(config *Config) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		if err := json.NewEncoder(w).Encode(resp); err != nil {
+			log.Printf("Error encoding config response: %v", err)
+		}
 	}
 }
 
@@ -219,7 +223,9 @@ func handleTokenExchange(config *Config) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(tokenResp)
+		if err := json.NewEncoder(w).Encode(tokenResp); err != nil {
+			log.Printf("Error encoding token response: %v", err)
+		}
 	}
 }
 
@@ -243,7 +249,11 @@ func exchangeCodeForToken(config *Config, code string) (*TokenResponse, error) {
 	if err != nil {
 		return nil, fmt.Errorf("making request to GitHub: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			log.Printf("Error closing response body: %v", err)
+		}
+	}()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
