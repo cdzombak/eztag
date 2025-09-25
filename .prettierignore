@@ -1,0 +1,20 @@
+# Build outputs
+/out/
+node_modules/
+
+# Package files
+package-lock.json
+go.mod
+go.sum
+
+# Configuration files that should maintain specific formatting
+.version.sh
+Makefile
+.fpm
+
+# Git and CI files
+.git/
+.github/
+
+# Documentation that may have specific formatting
+README.md
