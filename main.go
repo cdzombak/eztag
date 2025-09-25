@@ -16,6 +16,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+var version = "dev"
+
 //go:embed index.html styles.css app.js
 var staticFiles embed.FS
 
@@ -47,7 +49,22 @@ type ConfigResponse struct {
 
 func main() {
 	configPath := flag.String("config", "config.yaml", "Path to configuration file")
+	showVersion := flag.Bool("version", false, "Print version and exit")
+	showHelp := flag.Bool("help", false, "Print help and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Printf("eztag version %s\n", version)
+		os.Exit(0)
+	}
+
+	if *showHelp {
+		fmt.Printf("eztag - GitHub Tag Manager\n\n")
+		fmt.Printf("Usage: eztag [OPTIONS]\n\n")
+		fmt.Printf("Options:\n")
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
 
 	config, err := loadConfig(*configPath)
 	if err != nil {
