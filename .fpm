@@ -1,0 +1,9 @@
+--name eztag
+--description "GitHub Tag Manager - Easily manage GitHub tags for your repositories"
+--url https://github.com/cdzombak/eztag
+--maintainer "Chris Dzombak <https://www.dzombak.com>"
+--license MIT
+--vendor "Chris Dzombak"
+--category web
+--depends "ca-certificates"
+--deb-no-default-config-files
