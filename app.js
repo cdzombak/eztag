@@ -33,7 +33,7 @@ class EzTagApp {
   }
 
   setupHistoryHandling() {
-    window.addEventListener('popstate', (event) => {
+    window.addEventListener('popstate', event => {
       if (event.state) {
         this.handleHistoryNavigation(event.state);
       } else {
@@ -61,14 +61,22 @@ class EzTagApp {
     document.getElementById('signOutBtn').addEventListener('click', () => this.signOut());
 
     // Repository list events
-    document.getElementById('repoFilter').addEventListener('input', (e) => this.filterRepositories(e.target.value));
-    document.getElementById('repoSort').addEventListener('change', (e) => this.sortRepositories(e.target.value));
+    document
+      .getElementById('repoFilter')
+      .addEventListener('input', e => this.filterRepositories(e.target.value));
+    document
+      .getElementById('repoSort')
+      .addEventListener('change', e => this.sortRepositories(e.target.value));
 
     // Detail screen events
     document.getElementById('backBtn').addEventListener('click', () => this.showRepoScreen());
     document.getElementById('openGitHubBtn').addEventListener('click', () => this.openInGitHub());
-    document.getElementById('branchSort').addEventListener('change', (e) => this.sortBranches(e.target.value));
-    document.getElementById('tagSort').addEventListener('change', (e) => this.sortTags(e.target.value));
+    document
+      .getElementById('branchSort')
+      .addEventListener('change', e => this.sortBranches(e.target.value));
+    document
+      .getElementById('tagSort')
+      .addEventListener('change', e => this.sortTags(e.target.value));
 
     // Modal events
     document.getElementById('modalOverlay').addEventListener('click', () => this.closeModal());
@@ -77,12 +85,12 @@ class EzTagApp {
     document.getElementById('createTagBtn').addEventListener('click', () => this.createTag());
 
     // Enter key submission for tag creation
-    document.getElementById('tagName').addEventListener('keydown', (e) => {
+    document.getElementById('tagName').addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         this.createTag();
       }
     });
-    document.getElementById('tagMessage').addEventListener('keydown', (e) => {
+    document.getElementById('tagMessage').addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         this.createTag();
@@ -122,7 +130,7 @@ class EzTagApp {
       const response = await fetch('/api/oauth/token', {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -159,7 +167,7 @@ class EzTagApp {
       redirect_uri: this.redirectUri,
       scope: 'repo public_repo user',
       state: state,
-      allow_signup: 'true'
+      allow_signup: 'true',
     });
 
     window.location.href = `https://github.com/login/oauth/authorize?${params.toString()}`;
@@ -214,7 +222,7 @@ class EzTagApp {
 
       const [branches, tags] = await Promise.all([
         this.githubAPI(`/repos/${repo.full_name}/branches`),
-        this.githubAPI(`/repos/${repo.full_name}/tags`)
+        this.githubAPI(`/repos/${repo.full_name}/tags`),
       ]);
 
       // Find recent branches by searching back in 30-day increments
@@ -241,27 +249,42 @@ class EzTagApp {
 
       // Get commit details and CI status for up to 15 branches (to avoid too many API calls)
       const branchesWithCommits = await Promise.all(
-        branches.slice(0, 15).map(async (branch) => {
+        branches.slice(0, 15).map(async branch => {
           try {
-            const commit = await this.githubAPI(`/repos/${repoFullName}/commits/${branch.commit.sha}`);
+            const commit = await this.githubAPI(
+              `/repos/${repoFullName}/commits/${branch.commit.sha}`
+            );
 
             // Get CI status for the branch
             let ciStatus = null;
             try {
               // Try check runs first (newer GitHub Actions)
-              const checkRuns = await this.githubAPI(`/repos/${repoFullName}/commits/${branch.commit.sha}/check-runs`);
+              const checkRuns = await this.githubAPI(
+                `/repos/${repoFullName}/commits/${branch.commit.sha}/check-runs`
+              );
               if (checkRuns.total_count > 0) {
-                const conclusions = checkRuns.check_runs.map(run => run.conclusion).filter(c => c !== null);
+                const conclusions = checkRuns.check_runs
+                  .map(run => run.conclusion)
+                  .filter(c => c !== null);
                 const statuses = checkRuns.check_runs.map(run => run.status);
 
-                console.log(`Branch ${branch.name} check runs:`, checkRuns.check_runs.map(run => ({
-                  name: run.name,
-                  status: run.status,
-                  conclusion: run.conclusion
-                })));
+                console.log(
+                  `Branch ${branch.name} check runs:`,
+                  checkRuns.check_runs.map(run => ({
+                    name: run.name,
+                    status: run.status,
+                    conclusion: run.conclusion,
+                  }))
+                );
 
                 const hasPending = statuses.some(s => s === 'in_progress' || s === 'queued');
-                const hasFailure = conclusions.some(c => c === 'failure' || c === 'cancelled' || c === 'timed_out' || c === 'action_required');
+                const hasFailure = conclusions.some(
+                  c =>
+                    c === 'failure' ||
+                    c === 'cancelled' ||
+                    c === 'timed_out' ||
+                    c === 'action_required'
+                );
                 const hasSuccess = conclusions.some(c => c === 'success');
 
                 if (hasPending) {
@@ -275,11 +298,13 @@ class EzTagApp {
               } else {
                 // Fallback to status API for older CI systems
                 try {
-                  const statusResponse = await this.githubAPI(`/repos/${repoFullName}/commits/${branch.commit.sha}/status`);
+                  const statusResponse = await this.githubAPI(
+                    `/repos/${repoFullName}/commits/${branch.commit.sha}/status`
+                  );
                   if (statusResponse.total_count > 0) {
                     ciStatus = {
                       state: statusResponse.state, // success, failure, pending, error
-                      total_count: statusResponse.total_count
+                      total_count: statusResponse.total_count,
                     };
                   }
                 } catch {
@@ -296,14 +321,14 @@ class EzTagApp {
               ...branch,
               lastCommit: commit.commit.committer.date,
               lastCommitMessage: commit.commit.message,
-              ciStatus
+              ciStatus,
             };
           } catch {
             return {
               ...branch,
               lastCommit: null,
               lastCommitMessage: 'Unknown',
-              ciStatus: null
+              ciStatus: null,
             };
           }
         })
@@ -317,7 +342,9 @@ class EzTagApp {
 
       if (recentBranches.length === 0) {
         daysBack += 30; // Search back another 30 days
-        console.log(`No branches found in last ${daysBack - 30} days, searching back ${daysBack} days`);
+        console.log(
+          `No branches found in last ${daysBack - 30} days, searching back ${daysBack} days`
+        );
       }
     }
 
@@ -327,7 +354,7 @@ class EzTagApp {
       return branches.slice(0, 10).map(branch => ({
         ...branch,
         lastCommit: null,
-        lastCommitMessage: 'Unknown'
+        lastCommitMessage: 'Unknown',
       }));
     }
 
@@ -341,7 +368,7 @@ class EzTagApp {
   async enhanceTagsWithDetails(repoFullName, tags) {
     // Get detailed information for each tag (limit to first 20 to avoid too many API calls)
     const enhancedTags = await Promise.all(
-      tags.slice(0, 20).map(async (tag) => {
+      tags.slice(0, 20).map(async tag => {
         try {
           let createdDate = null;
           let branches = ['main']; // Default assumption
@@ -356,7 +383,9 @@ class EzTagApp {
             // For annotated tags, the tag object exists and has more detailed info
             const refs = await this.githubAPI(`/repos/${repoFullName}/git/refs/tags/${tag.name}`);
             if (refs.object && refs.object.type === 'tag') {
-              const gitTag = await this.githubAPI(`/repos/${repoFullName}/git/tags/${refs.object.sha}`);
+              const gitTag = await this.githubAPI(
+                `/repos/${repoFullName}/git/tags/${refs.object.sha}`
+              );
               if (gitTag.tagger) {
                 createdDate = gitTag.tagger.date;
                 message = gitTag.message || 'No message';
@@ -375,7 +404,7 @@ class EzTagApp {
             ...tag,
             createdDate,
             branches,
-            message
+            message,
           };
         } catch (error) {
           console.warn(`Could not fetch details for tag ${tag.name}:`, error);
@@ -383,7 +412,7 @@ class EzTagApp {
             ...tag,
             createdDate: null,
             branches: ['main'],
-            message: 'No message'
+            message: 'No message',
           };
         }
       })
@@ -411,7 +440,9 @@ class EzTagApp {
 
     try {
       // Get the latest commit SHA for the branch
-      const branchData = await this.githubAPI(`/repos/${this.currentRepo.full_name}/branches/${selectedBranch}`);
+      const branchData = await this.githubAPI(
+        `/repos/${this.currentRepo.full_name}/branches/${selectedBranch}`
+      );
       const commitSha = branchData.commit.sha;
 
       // Create the tag
@@ -423,8 +454,8 @@ class EzTagApp {
         tagger: {
           name: this.currentUser.name || this.currentUser.login,
           email: this.currentUser.email || `${this.currentUser.login}@users.noreply.github.com`,
-          date: new Date().toISOString()
-        }
+          date: new Date().toISOString(),
+        },
       };
 
       await this.githubAPI(`/repos/${this.currentRepo.full_name}/git/tags`, 'POST', tagData);
@@ -432,7 +463,7 @@ class EzTagApp {
       // Create the reference
       const refData = {
         ref: `refs/tags/${tagName}`,
-        sha: commitSha
+        sha: commitSha,
       };
 
       await this.githubAPI(`/repos/${this.currentRepo.full_name}/git/refs`, 'POST', refData);
@@ -461,12 +492,12 @@ class EzTagApp {
     const response = await fetch(`https://api.github.com${endpoint}`, {
       method,
       headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-        'Accept': 'application/vnd.github+json',
+        Authorization: `Bearer ${this.accessToken}`,
+        Accept: 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
-        ...(body ? { 'Content-Type': 'application/json' } : {})
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
       },
-      ...(body ? { body: JSON.stringify(body) } : {})
+      ...(body ? { body: JSON.stringify(body) } : {}),
     });
 
     if (!response.ok) {
@@ -522,7 +553,9 @@ class EzTagApp {
       return;
     }
 
-    container.innerHTML = this.repositories.map(repo => `
+    container.innerHTML = this.repositories
+      .map(
+        repo => `
       <div class="repo-item" onclick="app.fetchRepositoryDetails(${JSON.stringify(repo).replace(/"/g, '&quot;')})">
         <h3>${repo.name}</h3>
         <p>${repo.description || 'No description available'}</p>
@@ -536,7 +569,9 @@ class EzTagApp {
           <span>Updated ${this.formatDate(repo.updated_at)}</span>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   renderBranches() {
@@ -547,7 +582,9 @@ class EzTagApp {
       return;
     }
 
-    container.innerHTML = this.branches.map(branch => `
+    container.innerHTML = this.branches
+      .map(
+        branch => `
       <div class="branch-item">
         <div class="branch-info">
           <div class="branch-name">
@@ -562,7 +599,9 @@ class EzTagApp {
           Create Tag
         </button>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   renderCIStatusIndicator(branch) {
@@ -611,28 +650,40 @@ class EzTagApp {
       return;
     }
 
-    container.innerHTML = this.tags.map(tag => `
+    container.innerHTML = this.tags
+      .map(
+        tag => `
       <div class="tag-item">
         <div class="tag-info">
           <div class="tag-name">${tag.name}</div>
           <div class="tag-meta">
             ${tag.createdDate ? `Created ${this.formatDate(tag.createdDate)}` : 'Creation date unknown'}
             <br>
-            ${tag.branches && tag.branches.length > 0 ? `Branch${tag.branches.length > 1 ? 'es' : ''}: ${tag.branches.map(branch =>
-              `<a href="https://github.com/${this.currentRepo.full_name}/commits/${branch}" target="_blank" rel="noopener noreferrer">${branch}</a>`
-            ).join(', ')}` : 'Branch unknown'}
+            ${
+              tag.branches && tag.branches.length > 0
+                ? `Branch${tag.branches.length > 1 ? 'es' : ''}: ${tag.branches
+                    .map(
+                      branch =>
+                        `<a href="https://github.com/${this.currentRepo.full_name}/commits/${branch}" target="_blank" rel="noopener noreferrer">${branch}</a>`
+                    )
+                    .join(', ')}`
+                : 'Branch unknown'
+            }
             <br>
             Commit <a href="https://github.com/${this.currentRepo.full_name}/commit/${tag.commit.sha}" target="_blank" rel="noopener noreferrer">${tag.commit.sha.substring(0, 7)}</a>
           </div>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join('');
   }
 
   filterRepositories(query) {
-    const filteredRepos = this.repositories.filter(repo =>
-      repo.name.toLowerCase().includes(query.toLowerCase()) ||
-      (repo.description && repo.description.toLowerCase().includes(query.toLowerCase()))
+    const filteredRepos = this.repositories.filter(
+      repo =>
+        repo.name.toLowerCase().includes(query.toLowerCase()) ||
+        (repo.description && repo.description.toLowerCase().includes(query.toLowerCase()))
     );
 
     const container = document.getElementById('repoList');
