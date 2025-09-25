@@ -75,6 +75,19 @@ class EzTagApp {
     document.getElementById('closeModalBtn').addEventListener('click', () => this.closeModal());
     document.getElementById('cancelTagBtn').addEventListener('click', () => this.closeModal());
     document.getElementById('createTagBtn').addEventListener('click', () => this.createTag());
+
+    // Enter key submission for tag creation
+    document.getElementById('tagName').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        this.createTag();
+      }
+    });
+    document.getElementById('tagMessage').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        this.createTag();
+      }
+    });
   }
 
   checkAuthStatus() {
@@ -386,10 +399,13 @@ class EzTagApp {
   async createTag() {
     const tagName = document.getElementById('tagName').value.trim();
     const tagMessage = document.getElementById('tagMessage').value.trim();
-    const selectedBranch = document.querySelector('.create-tag-btn.selected')?.dataset.branch;
+    const selectedBranch = document.getElementById('createTagModal').dataset.branch;
+
+    // Hide any previous errors
+    this.hideModalError();
 
     if (!tagName || !selectedBranch) {
-      alert('Please enter a tag name and select a branch');
+      this.showModalError('Please enter a tag name and select a branch');
       return;
     }
 
@@ -428,7 +444,16 @@ class EzTagApp {
       this.fetchRepositoryDetails(this.currentRepo);
     } catch (error) {
       console.error('Failed to create tag:', error);
-      this.showError('Failed to create tag: ' + (error.message || 'Unknown error'));
+      let errorMessage = 'Failed to create tag. Please try again.';
+
+      // Try to extract more specific error message from GitHub API
+      if (error.message && error.message.includes('already exists')) {
+        errorMessage = `Tag '${tagName}' already exists. Please choose a different name.`;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      this.showModalError(errorMessage);
     }
   }
 
@@ -673,8 +698,14 @@ class EzTagApp {
     document.getElementById('tagName').value = '';
     document.getElementById('tagMessage').value = '';
 
+    // Clear any previous errors
+    this.hideModalError();
+
     // Store branch name for later use
     document.getElementById('createTagModal').dataset.branch = branchName;
+
+    // Focus on the tag name input
+    setTimeout(() => document.getElementById('tagName').focus(), 100);
   }
 
   closeModal() {
@@ -688,13 +719,45 @@ class EzTagApp {
   }
 
   showError(message) {
-    // Simple error display - you could enhance this with a proper notification system
-    alert(`Error: ${message}`);
+    this.showToast(message, 'error');
   }
 
   showSuccess(message) {
-    // Simple success display - you could enhance this with a proper notification system
-    alert(`Success: ${message}`);
+    this.showToast(message, 'success');
+  }
+
+  showModalError(message) {
+    const errorDiv = document.getElementById('modalError');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+  }
+
+  hideModalError() {
+    const errorDiv = document.getElementById('modalError');
+    errorDiv.style.display = 'none';
+  }
+
+  showToast(message, type = 'success') {
+    // Remove existing toast if any
+    const existingToast = document.querySelector('.toast');
+    if (existingToast) {
+      existingToast.remove();
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    // Show toast with animation
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Hide and remove toast after 4 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 300);
+    }, 4000);
   }
 
   formatDate(dateString) {
