@@ -1,13 +1,18 @@
 {
   "name": "eztag",
   "version": "1.0.0",
+  "type": "module",
   "description": "GitHub Tag Manager - Easily manage GitHub tags for your repositories",
   "scripts": {
     "lint": "eslint app.js",
-    "lint:fix": "eslint app.js --fix"
+    "lint:fix": "eslint app.js --fix",
+    "format": "prettier --write \"*.html\" \"*.css\" \"*.js\"",
+    "format:check": "prettier --check \"*.html\" \"*.css\" \"*.js\""
   },
   "devDependencies": {
-    "eslint": "^8.57.0"
+    "@eslint/js": "^9.36.0",
+    "eslint": "^9.36.0",
+    "prettier": "^3.3.0"
   },
   "private": true
 }
