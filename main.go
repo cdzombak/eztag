@@ -59,7 +59,7 @@ func main() {
 	}
 
 	if *showHelp {
-		fmt.Printf("eztag - GitHub Tag Manager\n\n")
+		fmt.Printf("EZTag - Quickly & easily create tags in your GitHub repositories\n\n")
 		fmt.Printf("Usage: eztag [OPTIONS]\n\n")
 		fmt.Printf("Options:\n")
 		flag.PrintDefaults()

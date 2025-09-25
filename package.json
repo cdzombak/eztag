@@ -1,8 +1,8 @@
 {
-  "name": "eztag",
+  "name": "EZTag",
   "version": "1.0.0",
   "type": "module",
-  "description": "GitHub Tag Manager - Easily manage GitHub tags for your repositories",
+  "description": "Quickly & easily create tags in your GitHub repositories",
   "scripts": {
     "lint": "eslint app.js",
     "lint:fix": "eslint app.js --fix",
