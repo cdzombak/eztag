@@ -11,7 +11,44 @@ Quickly & easily create tags in your GitHub repositories.
 
 ## Installation
 
-TK
+### macOS via Homebrew
+
+```shell
+brew install cdzombak/oss/eztag
+```
+
+### Debian via apt repository
+
+Install my Debian repository if you haven't already:
+
+```shell
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://dist.cdzombak.net/deb.key | sudo gpg --dearmor -o /etc/apt/keyrings/dist-cdzombak-net.gpg
+sudo chmod 0644 /etc/apt/keyrings/dist-cdzombak-net.gpg
+echo -e "deb [signed-by=/etc/apt/keyrings/dist-cdzombak-net.gpg] https://dist.cdzombak.net/deb/oss any oss\n" | sudo tee -a /etc/apt/sources.list.d/dist-cdzombak-net.list > /dev/null
+sudo apt-get update
+```
+
+Then install `eztag` via `apt-get`:
+
+```shell
+sudo apt-get install eztag
+```
+
+### Manual installation from build artifacts
+
+Pre-built binaries for Linux and macOS on various architectures are downloadable from each [GitHub Release](https://github.com/cdzombak/eztag/releases). Debian packages for each release are available as well.
+
+### Build and install locally
+
+```shell
+git clone https://github.com/cdzombak/eztag.git
+cd eztag
+make build
+
+cp out/eztag $INSTALL_DIR
+```
 
 ## Configuration
 
