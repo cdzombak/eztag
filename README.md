@@ -1,121 +1,204 @@
-# eztag - GitHub Tag Manager
+# eztag
 
-A modern, clean web application that provides an easy interface for managing GitHub tags. Built with vanilla HTML, CSS, and JavaScript with GitHub-styled UI components.
+**eztag** is a GitHub Tag Manager that provides an easy-to-use web interface for managing GitHub tags across your repositories.
 
 ## Features
 
-- **GitHub OAuth Integration**: Secure sign-in with GitHub
-- **Repository Management**: Browse and filter your non-archived repositories
-- **Branch Filtering**: View branches with recent activity (last 30 days)
-- **Tag Management**: View existing tags and create new ones
-- **Sorting & Filtering**: Sort repositories and branches by name or last updated
-- **GitHub Integration**: Direct links to open repositories in GitHub
-
-## Setup Instructions
-
-### 1. Create GitHub OAuth App
-
-1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
-2. Click "New OAuth App"
-3. Fill in the application details:
-   - **Application name**: `eztag` (or your preferred name)
-   - **Homepage URL**: Your Tailscale served HTTPS URL (e.g., `https://your-tailscale-name.ts.net`)
-   - **Authorization callback URL**: Same as Homepage URL
-4. Click "Register application"
-5. Note your **Client ID** and **Client Secret**
-
-### 2. Configure the Application
-
-1. Open `app.js` in your editor
-2. Replace `YOUR_GITHUB_OAUTH_CLIENT_ID` with your actual GitHub OAuth Client ID:
-   ```javascript
-   this.clientId = 'your_actual_client_id_here';
-   ```
-
-**Important Security Note**: For production use, you should implement a backend service to handle the OAuth token exchange. The current implementation includes client secret handling which should never be done client-side. For demonstration purposes, you can use GitHub's device flow or implement a simple backend proxy.
-
-### 3. Serve with Tailscale
-
-Since the application will be served via HTTPS using Tailscale serve, make sure to:
-
-1. Ensure your Tailscale is configured and running
-2. Use `tailscale serve` to serve the application directory over HTTPS
-3. Update your GitHub OAuth App's callback URL to match your Tailscale HTTPS URL
-
-Example Tailscale serve command:
-```bash
-tailscale serve --https=443 --set-path=/ /path/to/eztag
-```
-
-### 4. File Structure
-
-```
-eztag/
-├── index.html          # Main HTML structure
-├── styles.css          # GitHub-styled CSS
-├── app.js             # Main application logic
-└── README.md          # This file
-```
+- 🔐 **GitHub OAuth Integration** - Secure authentication with your GitHub account
+- 📊 **Repository Overview** - Browse your repositories with intelligent filtering and sorting
+- 🌿 **Branch Management** - View recent branches with CI status indicators
+- 🏷️ **Tag Management** - Create, view, and manage tags with intuitive interface
+- ⚡ **Real-time Updates** - Instant feedback with toast notifications
+- 📱 **Responsive Design** - GitHub-styled interface that works on all devices
+- 🔄 **CI Integration** - Visual CI status indicators with direct links to GitHub Actions
 
 ## Usage
 
-1. **Sign In**: Click "Sign in with GitHub" to authenticate
-2. **Browse Repositories**: View and filter your repositories by name or last updated date
-3. **Select Repository**: Click on a repository to view its branches and tags
-4. **View Branches**: See branches with activity in the last 30 days
-5. **Create Tags**: Click "Create Tag" next to any branch to create a new tag
-6. **Manage Tags**: View existing tags sorted by name or creation date
-7. **GitHub Integration**: Use "Open in GitHub" to view the repository on GitHub
+```bash
+eztag [OPTIONS]
+```
 
-## Technical Details
+### Options
 
-### GitHub API Scopes Required
-- `repo`: Full control of private repositories (for tag creation)
-- `public_repo`: Access to public repositories
-- `user`: Access to user profile information
+- `-config string` - Path to configuration file (default: config.yaml)
+- `-version` - Print version and exit
+- `-help` - Print help and exit
 
-### API Endpoints Used
-- `GET /user` - Get current user information
-- `GET /user/repos` - List user repositories
-- `GET /repos/{owner}/{repo}/branches` - List repository branches
-- `GET /repos/{owner}/{repo}/tags` - List repository tags
-- `GET /repos/{owner}/{repo}/commits/{sha}` - Get commit information
-- `POST /repos/{owner}/{repo}/git/tags` - Create a new tag object
-- `POST /repos/{owner}/{repo}/git/refs` - Create a new reference (tag)
+### Example
 
-### Security Considerations
+```bash
+# Run with default config
+eztag
 
-1. **Token Storage**: Access tokens are stored in localStorage. For production, consider more secure storage methods.
-2. **HTTPS Required**: OAuth requires HTTPS, which is provided by Tailscale serve.
-3. **Client Secret**: Should be handled server-side, not in client-side JavaScript.
-4. **CORS**: The GitHub API supports CORS for browser requests when properly authenticated.
+# Run with custom config
+eztag -config /path/to/myconfig.yaml
 
-### Browser Compatibility
+# Check version
+eztag -version
+```
 
-The application uses modern JavaScript features and should work in:
-- Chrome 60+
-- Firefox 55+
-- Safari 12+
-- Edge 79+
+## Installation
+
+### Manual installation from build artifacts
+
+Pre-built binaries for Linux and macOS on various architectures are downloadable from each [GitHub Release](https://github.com/cdzombak/eztag/releases).
+
+### Build and install locally
+
+Requirements:
+- Go 1.21+
+- Node.js 20+ (for development)
+
+```bash
+git clone https://github.com/cdzombak/eztag.git
+cd eztag
+make build
+./out/eztag -help
+```
+
+## Configuration
+
+### GitHub OAuth Setup
+
+1. **Create a GitHub OAuth App**:
+   - Go to GitHub Settings > Developer settings > OAuth Apps
+   - Click "New OAuth App"
+   - Fill in the details:
+     - Application name: `eztag`
+     - Homepage URL: Your application URL (e.g., `https://eztag.yourdomain.com`)
+     - Authorization callback URL: `https://eztag.yourdomain.com` (same as homepage)
+
+2. **Create configuration file** (`config.yaml`):
+   ```yaml
+   server:
+     host: "localhost"  # or "0.0.0.0" for all interfaces
+     port: "8080"
+   github:
+     client_id: "your_github_oauth_client_id"
+     client_secret: "your_github_oauth_client_secret"
+   ```
+
+3. **Secure your configuration**:
+   - Never commit `config.yaml` to version control
+   - Set appropriate file permissions: `chmod 600 config.yaml`
+   - Consider using environment variables in production
+
+### Serving with Tailscale
+
+eztag works excellently with [Tailscale](https://tailscale.com/) for secure remote access:
+
+1. **Install and configure Tailscale** on your server
+2. **Start eztag** on your desired port:
+   ```bash
+   eztag -config config.yaml
+   ```
+3. **Serve via Tailscale**:
+   ```bash
+   tailscale serve https / http://localhost:8080
+   ```
+4. **Update your GitHub OAuth app**:
+   - Set Homepage URL to your Tailscale URL (e.g., `https://machine-name.tail-scale.ts.net`)
+   - Set Authorization callback URL to the same URL
+
+This provides secure, encrypted access to eztag from anywhere without exposing it to the public internet.
 
 ## Development
 
-The application is built with vanilla JavaScript to minimize dependencies and complexity. All styling follows GitHub's design system for familiarity.
+### Setup
 
-### Key Components
+```bash
+# Install Go dependencies
+go mod download
 
-1. **Authentication Flow**: Implements OAuth 2.0 Authorization Code flow
-2. **API Client**: Centralized GitHub API request handling with error management
-3. **State Management**: Simple in-memory state for current user, repositories, and selected repository data
-4. **UI Components**: Modular rendering functions for different screen states
+# Install Node.js dependencies for linting
+npm install
 
-## Limitations
+# Install development tools
+make install-tools
+```
 
-1. **Client-Side OAuth**: For security, token exchange should be implemented server-side
-2. **Rate Limiting**: No built-in GitHub API rate limit handling
-3. **Error Handling**: Basic error handling with simple alert dialogs
-4. **Offline Support**: No offline functionality or caching
+### Building
+
+```bash
+# Build for current platform
+make build
+
+# Build for all supported platforms
+make all
+
+# Clean build artifacts
+make clean
+```
+
+### Linting
+
+```bash
+# Run all linters
+make lint
+
+# Run Go linter only
+make lint-go
+
+# Run JavaScript linter only
+make lint-js
+
+# Format Go code
+make fmt
+```
+
+### Testing
+
+```bash
+# Run tests
+make test
+
+# Run application locally
+make run
+```
+
+## Docker
+
+Docker images are available for Linux architectures from [Docker Hub](https://hub.docker.com/r/cdzombak/eztag) and [GHCR](https://github.com/cdzombak/eztag/pkgs/container/eztag).
+
+```bash
+# Pull and run
+docker run -d \
+  --name eztag \
+  -p 8080:8080 \
+  -v /path/to/config.yaml:/app/config.yaml:ro \
+  cdzombak/eztag:latest
+
+# Build locally
+make docker-build
+```
+
+## Security Considerations
+
+- **OAuth Secrets**: Never commit your GitHub OAuth client secret to version control
+- **HTTPS**: Always serve eztag over HTTPS in production
+- **Network Access**: Consider using Tailscale or VPN for secure remote access
+- **File Permissions**: Set restrictive permissions on your configuration file
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes and add tests
+4. Run linters: `make lint`
+5. Run tests: `make test`
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
 
 ## License
 
-This project is provided as-is for demonstration purposes. Feel free to modify and use as needed.
+MIT License. See [LICENSE](LICENSE) for details.
+
+## Author
+
+- **Chris Dzombak** - [https://www.dzombak.com](https://www.dzombak.com)
+
+## Support
+
+- [GitHub Issues](https://github.com/cdzombak/eztag/issues) - Bug reports and feature requests
+- [GitHub Discussions](https://github.com/cdzombak/eztag/discussions) - Questions and discussions

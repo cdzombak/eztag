@@ -1,6 +1,9 @@
 # Configuration files with secrets
 config.yaml
 
+# Build outputs
+/out/
+
 # Go build artifacts
 eztag
 *.exe
@@ -13,6 +16,13 @@ eztag
 
 # Go coverage files
 *.out
+
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
 
 # IDE files
 .vscode/
