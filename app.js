@@ -220,6 +220,12 @@ class EzTagApp {
         history.pushState(state, '', `#repo/${repo.full_name}`);
       }
 
+      // Clear previous data and show loading states immediately
+      this.branches = null;
+      this.tags = null;
+      this.renderBranches();
+      this.renderTags();
+
       const [branches, tags] = await Promise.all([
         this.githubAPI(`/repos/${repo.full_name}/branches`),
         this.githubAPI(`/repos/${repo.full_name}/tags`),
@@ -577,6 +583,12 @@ class EzTagApp {
   renderBranches() {
     const container = document.getElementById('branchList');
 
+    if (this.branches === null) {
+      // Loading state
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading branches...</span></div>';
+      return;
+    }
+
     if (this.branches.length === 0) {
       container.innerHTML = '<div class="empty">No recent branches found</div>';
       return;
@@ -644,6 +656,12 @@ class EzTagApp {
 
   renderTags() {
     const container = document.getElementById('tagList');
+
+    if (this.tags === null) {
+      // Loading state
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><span>Loading tags...</span></div>';
+      return;
+    }
 
     if (this.tags.length === 0) {
       container.innerHTML = '<div class="empty">No tags found</div>';

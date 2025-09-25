@@ -588,6 +588,28 @@ textarea.input {
   color: var(--color-fg-muted);
 }
 
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Loading Spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border-muted);
+  border-top: 2px solid var(--color-accent-emphasis);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Modal Error Display */
 .modal-error {
   padding: 12px 16px;
