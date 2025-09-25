@@ -29,8 +29,8 @@ export default [
         parseInt: 'readonly',
         parseFloat: 'readonly',
         encodeURIComponent: 'readonly',
-        decodeURIComponent: 'readonly'
-      }
+        decodeURIComponent: 'readonly',
+      },
     },
     rules: {
       // Error Prevention
@@ -40,19 +40,19 @@ export default [
       'no-unreachable': 'error',
 
       // Code Style
-      'indent': ['error', 2],
+      indent: ['error', 2],
       'linebreak-style': ['error', 'unix'],
-      'quotes': ['error', 'single'],
-      'semi': ['error', 'always'],
+      quotes: ['error', 'single'],
+      semi: ['error', 'always'],
 
       // Best Practices
-      'eqeqeq': 'error',
-      'curly': 'error',
+      eqeqeq: 'error',
+      curly: 'error',
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
-      'no-script-url': 'error'
+      'no-script-url': 'error',
     },
-    files: ['*.js']
-  }
+    files: ['*.js'],
+  },
 ];
