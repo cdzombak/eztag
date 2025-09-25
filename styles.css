@@ -431,6 +431,11 @@ textarea.input {
   text-decoration: none;
 }
 
+/* Ensure CI status links never show underlines */
+.ci-status:hover {
+  text-decoration: none !important;
+}
+
 @keyframes pulse {
   0% {
     opacity: 1;
