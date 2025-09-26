@@ -46,9 +46,9 @@ build/darwin-arm64: ## Build for macOS/arm64 to ./out
 
 .PHONY: package
 package: all ## Build all binaries + .deb packages to ./out (requires fpm: https://fpm.readthedocs.io)
-	fpm -t deb -v ${BIN_VERSION} -p ./out/${BIN_NAME}-${BIN_VERSION}-amd64.deb -a amd64 ./out/${BIN_NAME}-${BIN_VERSION}-linux-amd64=/usr/bin/${BIN_NAME}
-	fpm -t deb -v ${BIN_VERSION} -p ./out/${BIN_NAME}-${BIN_VERSION}-arm64.deb -a arm64 ./out/${BIN_NAME}-${BIN_VERSION}-linux-arm64=/usr/bin/${BIN_NAME}
-	fpm -t deb -v ${BIN_VERSION} -p ./out/${BIN_NAME}-${BIN_VERSION}-armhf.deb -a armhf ./out/${BIN_NAME}-${BIN_VERSION}-linux-armv6=/usr/bin/${BIN_NAME}
+	fpm -s dir -t deb -v ${BIN_VERSION} -p ./out/${BIN_NAME}-${BIN_VERSION}-amd64.deb -a amd64 ./out/${BIN_NAME}-${BIN_VERSION}-linux-amd64=/usr/bin/${BIN_NAME}
+	fpm -s dir -t deb -v ${BIN_VERSION} -p ./out/${BIN_NAME}-${BIN_VERSION}-arm64.deb -a arm64 ./out/${BIN_NAME}-${BIN_VERSION}-linux-arm64=/usr/bin/${BIN_NAME}
+	fpm -s dir -t deb -v ${BIN_VERSION} -p ./out/${BIN_NAME}-${BIN_VERSION}-armhf.deb -a armhf ./out/${BIN_NAME}-${BIN_VERSION}-linux-armv6=/usr/bin/${BIN_NAME}
 
 .PHONY: lint
 lint: lint/go lint/js ## Run all linters
