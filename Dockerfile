@@ -4,12 +4,16 @@ ARG BIN_VERSION=<unknown>
 FROM golang:1-alpine AS builder
 ARG BIN_NAME
 ARG BIN_VERSION
+
+RUN apk --no-cache add ca-certificates
+
 WORKDIR /src/eztag
 COPY . .
 RUN go build -ldflags="-X main.version=${BIN_VERSION}" -o ./out/${BIN_NAME} .
 
 FROM scratch
 ARG BIN_NAME
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /src/eztag/out/${BIN_NAME} /usr/bin/eztag
 ENTRYPOINT ["/usr/bin/eztag"]
 
