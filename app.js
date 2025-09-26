@@ -342,7 +342,7 @@ class EzTagApp {
 
       // Filter branches updated within the current time window
       recentBranches = branchesWithCommits.filter(branch => {
-        if (!branch.lastCommit) return true; // Include branches we couldn't get commit info for
+        if (!branch.lastCommit) {return true;} // Include branches we couldn't get commit info for
         return new Date(branch.lastCommit) >= cutoffDate;
       });
 
@@ -366,7 +366,7 @@ class EzTagApp {
 
     // Sort by last commit date (most recent first) by default
     return recentBranches.sort((a, b) => {
-      if (!a.lastCommit || !b.lastCommit) return 0;
+      if (!a.lastCommit || !b.lastCommit) {return 0;}
       return new Date(b.lastCommit) - new Date(a.lastCommit);
     });
   }
@@ -397,7 +397,7 @@ class EzTagApp {
                 message = gitTag.message || 'No message';
               }
             }
-          } catch (tagError) {
+          } catch {
             // This is likely a lightweight tag, just use commit date
             console.log(`Tag ${tag.name} appears to be a lightweight tag`);
           }
@@ -426,7 +426,7 @@ class EzTagApp {
 
     // Sort by creation date (most recent first) by default
     return enhancedTags.sort((a, b) => {
-      if (!a.createdDate || !b.createdDate) return 0;
+      if (!a.createdDate || !b.createdDate) {return 0;}
       return new Date(b.createdDate) - new Date(a.createdDate);
     });
   }
@@ -630,25 +630,25 @@ class EzTagApp {
     console.log(`Rendering CI status for branch ${branch.name}:`, branch.ciStatus.state);
 
     switch (branch.ciStatus.state) {
-      case 'success':
-        statusClass = 'ci-status-success';
-        statusIcon = '✅';
-        statusTitle = 'CI checks passed';
-        break;
-      case 'failure':
-      case 'error':
-        statusClass = 'ci-status-failure';
-        statusIcon = '❌';
-        statusTitle = 'CI checks failed';
-        break;
-      case 'pending':
-        statusClass = 'ci-status-pending';
-        statusIcon = '🟡';
-        statusTitle = 'CI checks running';
-        break;
-      default:
-        console.log(`Unknown CI status: ${branch.ciStatus.state}`);
-        return '';
+    case 'success':
+      statusClass = 'ci-status-success';
+      statusIcon = '✅';
+      statusTitle = 'CI checks passed';
+      break;
+    case 'failure':
+    case 'error':
+      statusClass = 'ci-status-failure';
+      statusIcon = '❌';
+      statusTitle = 'CI checks failed';
+      break;
+    case 'pending':
+      statusClass = 'ci-status-pending';
+      statusIcon = '🟡';
+      statusTitle = 'CI checks running';
+      break;
+    default:
+      console.log(`Unknown CI status: ${branch.ciStatus.state}`);
+      return '';
     }
 
     return `<a href="${actionsUrl}" target="_blank" rel="noopener noreferrer" class="ci-status ${statusClass}" title="${statusTitle}">${statusIcon}</a>`;
@@ -678,15 +678,15 @@ class EzTagApp {
             ${tag.createdDate ? `Created ${this.formatDate(tag.createdDate)}` : 'Creation date unknown'}
             <br>
             ${
-              tag.branches && tag.branches.length > 0
-                ? `Branch${tag.branches.length > 1 ? 'es' : ''}: ${tag.branches
-                    .map(
-                      branch =>
-                        `<a href="https://github.com/${this.currentRepo.full_name}/commits/${branch}" target="_blank" rel="noopener noreferrer">${branch}</a>`
-                    )
-                    .join(', ')}`
-                : 'Branch unknown'
-            }
+  tag.branches && tag.branches.length > 0
+    ? `Branch${tag.branches.length > 1 ? 'es' : ''}: ${tag.branches
+      .map(
+        branch =>
+          `<a href="https://github.com/${this.currentRepo.full_name}/commits/${branch}" target="_blank" rel="noopener noreferrer">${branch}</a>`
+      )
+      .join(', ')}`
+    : 'Branch unknown'
+}
             <br>
             Commit <a href="https://github.com/${this.currentRepo.full_name}/commit/${tag.commit.sha}" target="_blank" rel="noopener noreferrer">${tag.commit.sha.substring(0, 7)}</a>
           </div>
@@ -736,7 +736,7 @@ class EzTagApp {
       if (sortBy === 'name') {
         return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
       } else if (sortBy === 'updated') {
-        if (!a.lastCommit || !b.lastCommit) return 0;
+        if (!a.lastCommit || !b.lastCommit) {return 0;}
         return new Date(b.lastCommit) - new Date(a.lastCommit);
       }
       return 0;
@@ -835,9 +835,9 @@ class EzTagApp {
     const diffTime = Math.abs(now - date);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    if (diffDays === 1) return '1 day ago';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+    if (diffDays === 1) {return '1 day ago';}
+    if (diffDays < 7) {return `${diffDays} days ago`;}
+    if (diffDays < 30) {return `${Math.ceil(diffDays / 7)} weeks ago`;}
     return date.toLocaleDateString();
   }
 
@@ -852,4 +852,5 @@ class EzTagApp {
 }
 
 // Initialize the app
+// eslint-disable-next-line no-unused-vars
 const app = new EzTagApp();
