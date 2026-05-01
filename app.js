@@ -464,12 +464,16 @@ class EzTagApp {
         },
       };
 
-      await this.githubAPI(`/repos/${this.currentRepo.full_name}/git/tags`, 'POST', tagData);
+      const tagObject = await this.githubAPI(
+        `/repos/${this.currentRepo.full_name}/git/tags`,
+        'POST',
+        tagData
+      );
 
       // Create the reference
       const refData = {
         ref: `refs/tags/${tagName}`,
-        sha: commitSha,
+        sha: tagObject.sha,
       };
 
       await this.githubAPI(`/repos/${this.currentRepo.full_name}/git/refs`, 'POST', refData);
